@@ -28,5 +28,5 @@ Please have a look at [crafpix License](https://craftpix.net/file-licenses/) for
 [Spine Runtimes](https://github.com/EsotericSoftware/spine-runtimes) distributed with its own license. Please be sure 
 to have a valid Spine License.
 
-###LibGDX
+### LibGDX
 [LibGDX](https://github.com/libgdx/libgdx) licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
