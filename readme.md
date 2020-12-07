@@ -12,9 +12,13 @@ are on folder assets in Android Module.
 ## License
 
 ### Assets
-All assets Copyrights belong to [craftpix](https://craftpix.net/freebies/free-fairy-tale-game-backgrounds/). 
-Please have a look at [crafpix License](https://craftpix.net/file-licenses/) for more information
+Background assets Copyrights belong to [craftpix](https://craftpix.net/freebies/free-fairy-tale-game-backgrounds/). 
+Please have a look at [crafpix License](https://craftpix.net/file-licenses/) for more information.
 
+Character assets (SpineBoy) Copyrights belongs to Esoteric Software. The images may not be used for commercial use of any
+kind. [Source](https://github.com/EsotericSoftware/spine-runtimes/tree/3.8/examples/spineboy)
+
+ 
 ### HyperLap2D
 [HyperLap2D editor](https://github.com/rednblackgames/HyperLap2D) licensed under the [GNU Public License, Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
