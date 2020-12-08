@@ -5,11 +5,11 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kbaptista.example.character.CharacterComponent;
+import com.kbaptista.example.character.CharacterSystem;
 import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.utils.ItemWrapper;
 import games.rednblack.h2d.extention.spine.SpineItemType;
@@ -25,11 +25,25 @@ public class Core extends ApplicationAdapter {
 	public void create () {
 		sceneLoader = new SceneLoader();
 		sceneLoader.injectExternalItemType(new SpineItemType());//Where the Magic Happens Between Spine and Scene loaded
+
+		sceneLoader.getEngine().addSystem(new CharacterSystem(sceneLoader.getWorld()));
+
 		camera = new OrthographicCamera();
-		viewport = new ExtendViewport(640, 640,  camera);
+		viewport = new ExtendViewport(15, 10,  camera);
 		b2dr = new Box2DDebugRenderer();
 
 		sceneLoader.loadScene("MainScene", viewport);
+		loadCharacter("Character");
+	}
+
+	/**
+	 * Injecting our component to identify the Character
+	 * @param identifier given in HyperLap2D editor.
+	 */
+	private void loadCharacter(String identifier) {
+		ItemWrapper root = new ItemWrapper(sceneLoader.getRoot());
+		Entity character = root.getChild(identifier).getEntity();
+		character.add(new CharacterComponent());
 	}
 
 	@Override
