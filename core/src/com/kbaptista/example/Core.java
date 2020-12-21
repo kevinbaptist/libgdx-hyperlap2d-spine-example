@@ -1,5 +1,6 @@
 package com.kbaptista.example;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kbaptista.example.character.CharacterComponent;
 import com.kbaptista.example.character.CharacterSystem;
 import games.rednblack.editor.renderer.SceneLoader;
+import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.utils.ItemWrapper;
 import games.rednblack.h2d.extention.spine.SpineItemType;
 
@@ -21,15 +23,17 @@ public class Core extends ApplicationAdapter {
 
 	private Box2DDebugRenderer b2dr; //only purpose is to see 2d bodies created
 
+	private PhysicsBodyComponent player;
+
 	@Override
-	public void create () {
+	public void create() {
 		sceneLoader = new SceneLoader();
 		sceneLoader.injectExternalItemType(new SpineItemType());//Where the Magic Happens Between Spine and Scene loaded
 
 		sceneLoader.getEngine().addSystem(new CharacterSystem(sceneLoader.getWorld()));
 
 		camera = new OrthographicCamera();
-		viewport = new ExtendViewport(15, 10,  camera);
+		viewport = new ExtendViewport(15, 10, camera);
 		b2dr = new Box2DDebugRenderer();
 
 		sceneLoader.loadScene("MainScene", viewport);
@@ -38,21 +42,35 @@ public class Core extends ApplicationAdapter {
 
 	/**
 	 * Injecting our component to identify the Character
+	 *
 	 * @param identifier given in HyperLap2D editor.
 	 */
 	private void loadCharacter(String identifier) {
 		ItemWrapper root = new ItemWrapper(sceneLoader.getRoot());
 		Entity character = root.getChild(identifier).getEntity();
+		player = ComponentMapper.getFor(PhysicsBodyComponent.class).get(character);
 		character.add(new CharacterComponent());
 	}
 
 	@Override
-	public void render () {
-		Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	public void render() {
+		this.clearRender();
+		this.update();
+		this.centerCamera();
+	}
 
+	private void update() {
 		sceneLoader.getEngine().update(Gdx.graphics.getDeltaTime());
 		b2dr.render(sceneLoader.getWorld(), camera.combined);
+	}
+
+	private void clearRender() {
+		Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	}
+
+	private void centerCamera() {
+		camera.position.x = player.body.getPosition().x;
 	}
 
 	@Override
@@ -61,7 +79,7 @@ public class Core extends ApplicationAdapter {
 	}
 
 	@Override
-	public void dispose () {
+	public void dispose() {
 		//sceneLoader.dispose(); TODO: not available yet on version 0.0.3, thus disposing them individually
 		sceneLoader.getRayHandler().dispose();
 		sceneLoader.getBatch().dispose();
