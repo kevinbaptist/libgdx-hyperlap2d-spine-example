@@ -9,8 +9,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kbaptista.example.character.AnimationSystem;
 import com.kbaptista.example.character.CharacterComponent;
 import com.kbaptista.example.character.CharacterSystem;
+import com.kbaptista.example.listener.WorldContactListener;
 import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.utils.ItemWrapper;
@@ -31,6 +33,7 @@ public class Core extends ApplicationAdapter {
 		sceneLoader.injectExternalItemType(new SpineItemType());//Where the Magic Happens Between Spine and Scene loaded
 
 		sceneLoader.getEngine().addSystem(new CharacterSystem(sceneLoader.getWorld()));
+		sceneLoader.getEngine().addSystem(new AnimationSystem());
 
 		camera = new OrthographicCamera();
 		viewport = new ExtendViewport(15, 10, camera);
@@ -38,6 +41,8 @@ public class Core extends ApplicationAdapter {
 
 		sceneLoader.loadScene("MainScene", viewport);
 		loadCharacter("Character");
+
+		sceneLoader.getWorld().setContactListener(new WorldContactListener());
 	}
 
 	/**

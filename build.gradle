@@ -30,7 +30,7 @@ allprojects {
         aiVersion = '1.8.0'
         h2dVersion = '0.0.3'
         h2dSpineExtension = '0.0.3'
-        spineVersion = '3.5.51.1'
+        spineVersion = '3.8.55.1'
         box2dlightsVersion = '1.6-SNAPSHOT'
     }
 

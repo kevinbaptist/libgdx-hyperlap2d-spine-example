@@ -8,10 +8,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
+import static com.kbaptista.example.config.Config.PLAYER_BIT;
+
 public class CharacterSystem extends IteratingSystem implements EntityListener  {
 	private final Vector2 RIGHT_MOVEMENT;
 	private final Vector2 LEFT_MOVEMENT;
 	private final World world;
+
+	CharacterComponent characterComponent;
 
 	public CharacterSystem(World world) {
 		super(Family.all(CharacterComponent.class, PhysicsBodyComponent.class).get());
@@ -36,13 +40,17 @@ public class CharacterSystem extends IteratingSystem implements EntityListener  
 			body.applyLinearImpulse(RIGHT_MOVEMENT, body.getWorldCenter(), true);
 		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) &&  body.getLinearVelocity().x >= -4) {
 			body.applyLinearImpulse(LEFT_MOVEMENT, body.getWorldCenter(), true);
-		} else if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+		} else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && characterComponent.jumps > 0) {
+			characterComponent.jumps--;
 			body.applyLinearImpulse(new Vector2(0, 6f), body.getWorldCenter(), true);
 		}
+//		if (!body.getLinearVelocity().isZero())
+//			Gdx.app.log("Linear velocity", body.getLinearVelocity().x + ", " + body.getLinearVelocity().y);
 	}
 
 	@Override
 	public void entityAdded(Entity entity) {
+		characterComponent = entity.getComponent(CharacterComponent.class);
 		//TODO: Give more meaning to those numbers
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.position.set(5, 5);
@@ -54,7 +62,10 @@ public class CharacterSystem extends IteratingSystem implements EntityListener  
 		shape.setRadius(1);
 		shape.setPosition(new Vector2(1f, 1f));
 		fixtureDef.shape = shape;
-		entity.getComponent(PhysicsBodyComponent.class).body.createFixture(fixtureDef);
+		fixtureDef.filter.categoryBits = PLAYER_BIT;
+		entity.getComponent(PhysicsBodyComponent.class).body
+				.createFixture(fixtureDef)
+				.setUserData(entity);
 		entity.getComponent(PhysicsBodyComponent.class).body.createFixture(defineHead(fixtureDef));
 
 	}
