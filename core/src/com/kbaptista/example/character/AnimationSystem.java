@@ -9,12 +9,14 @@ import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.h2d.extention.spine.SpineObjectComponent;
 
-import static com.kbaptista.example.utils.Mappers.characterComponentMapper;
-import static com.kbaptista.example.utils.Mappers.physicsBodyComponentMapper;
-import static com.kbaptista.example.utils.Mappers.spineObjectComponentMapper;
+import static com.kbaptista.example.character.CharacterComponent.MAX_JUMPS;
+import static com.kbaptista.example.utils.Mappers.*;
 
 public class AnimationSystem extends IteratingSystem {
 	private AnimationState currentAnimation;
+
+	public final static int LOOKING_LEFT = -1;
+	public final static int LOOKING_RIGHT = 1;
 
 	public AnimationSystem() {
 		super(Family.all(CharacterComponent.class, SpineObjectComponent.class, PhysicsBodyComponent.class).get());
@@ -35,10 +37,9 @@ public class AnimationSystem extends IteratingSystem {
 	}
 
 	private AnimationState getNextAnimationState(Entity entity, SpineObjectComponent spineObjectComponent) {
-		PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
-		CharacterComponent characterComponent = characterComponentMapper.get(entity);
+
 		AnimationState animationState;
-		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.UP) || isJumping(entity)) {
 			animationState = AnimationState.JUMP;
 		} else if (isAnyMovingKeyPressed()) {
 			if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
@@ -46,24 +47,21 @@ public class AnimationSystem extends IteratingSystem {
 			} else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 				spineObjectComponent.skeleton.setScaleX(1);
 			}
-
-			if (characterComponent.jumps != 1) {
-				animationState = AnimationState.JUMP;
-			} else {
-				animationState = AnimationState.RUN;
-			}
+			animationState = AnimationState.RUN;
 		} else {
-			Vector2 velocity = physicsBodyComponent.body.getLinearVelocity();
-			if (characterComponent.jumps != 1) {
-				animationState = AnimationState.JUMP;
-
-			} else if (velocity.x * velocity.x > 1) {
+			Vector2 velocity = physicsBodyComponentMapper.get(entity).body.getLinearVelocity();
+			Gdx.app.log("ANimation", physicsBodyComponentMapper.get(entity).body.getMass() + "");
+			if (velocity.x * velocity.x > 1) {
 				animationState = AnimationState.RUN_TO_IDLE;
 			} else {
 				animationState = AnimationState.IDLE;
 			}
 		}
 		return animationState;
+	}
+
+	private boolean isJumping(Entity entity) {
+		return characterComponentMapper.get(entity).jumps != MAX_JUMPS;
 	}
 
 	private boolean isAnyMovingKeyPressed() {
