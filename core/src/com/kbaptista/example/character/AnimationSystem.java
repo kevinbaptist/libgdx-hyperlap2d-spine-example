@@ -1,6 +1,5 @@
 package com.kbaptista.example.character;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
@@ -9,6 +8,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.h2d.extention.spine.SpineObjectComponent;
+
+import static com.kbaptista.example.utils.Mappers.characterComponentMapper;
+import static com.kbaptista.example.utils.Mappers.physicsBodyComponentMapper;
+import static com.kbaptista.example.utils.Mappers.spineObjectComponentMapper;
 
 public class AnimationSystem extends IteratingSystem {
 	private AnimationState currentAnimation;
@@ -21,7 +24,7 @@ public class AnimationSystem extends IteratingSystem {
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		SpineObjectComponent spineObjectComponent = ComponentMapper.getFor(SpineObjectComponent.class).get(entity);
+		SpineObjectComponent spineObjectComponent = spineObjectComponentMapper.get(entity);
 		AnimationState animationState = getNextAnimationState(entity, spineObjectComponent);
 
 		if (currentAnimation != animationState) {
@@ -32,8 +35,8 @@ public class AnimationSystem extends IteratingSystem {
 	}
 
 	private AnimationState getNextAnimationState(Entity entity, SpineObjectComponent spineObjectComponent) {
-		PhysicsBodyComponent physicsBodyComponent = ComponentMapper.getFor(PhysicsBodyComponent.class).get(entity);
-		CharacterComponent characterComponent = ComponentMapper.getFor(CharacterComponent.class).get(entity);
+		PhysicsBodyComponent physicsBodyComponent = physicsBodyComponentMapper.get(entity);
+		CharacterComponent characterComponent = characterComponentMapper.get(entity);
 		AnimationState animationState;
 		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			animationState = AnimationState.JUMP;
@@ -54,7 +57,7 @@ public class AnimationSystem extends IteratingSystem {
 			if (characterComponent.jumps != 1) {
 				animationState = AnimationState.JUMP;
 
-			}else if (velocity.x * velocity.x > 1) {
+			} else if (velocity.x * velocity.x > 1) {
 				animationState = AnimationState.RUN_TO_IDLE;
 			} else {
 				animationState = AnimationState.IDLE;
