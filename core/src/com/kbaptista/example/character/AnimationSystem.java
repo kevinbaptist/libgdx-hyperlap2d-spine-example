@@ -21,9 +21,19 @@ public class AnimationSystem extends IteratingSystem {
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
+		SpineObjectComponent spineObjectComponent = ComponentMapper.getFor(SpineObjectComponent.class).get(entity);
+		AnimationState animationState = getNextAnimationState(entity, spineObjectComponent);
+
+		if (currentAnimation != animationState) {
+			currentAnimation = animationState;
+			spineObjectComponent.setAnimation(animationState.getAction());
+		}
+
+	}
+
+	private AnimationState getNextAnimationState(Entity entity, SpineObjectComponent spineObjectComponent) {
 		PhysicsBodyComponent physicsBodyComponent = ComponentMapper.getFor(PhysicsBodyComponent.class).get(entity);
 		CharacterComponent characterComponent = ComponentMapper.getFor(CharacterComponent.class).get(entity);
-		SpineObjectComponent spineObjectComponent = ComponentMapper.getFor(SpineObjectComponent.class).get(entity);
 		AnimationState animationState;
 		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			animationState = AnimationState.JUMP;
@@ -50,13 +60,7 @@ public class AnimationSystem extends IteratingSystem {
 				animationState = AnimationState.IDLE;
 			}
 		}
-
-		if (currentAnimation != animationState) {
-			Gdx.app.log("a", "Change current animation: " + animationState.getAction());
-			currentAnimation = animationState;
-			spineObjectComponent.setAnimation(animationState.getAction());
-		}
-
+		return animationState;
 	}
 
 	private boolean isAnyMovingKeyPressed() {
