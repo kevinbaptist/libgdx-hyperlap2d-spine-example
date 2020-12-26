@@ -1,7 +1,6 @@
 package com.kbaptista.example.listener;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.*;
 import com.kbaptista.example.character.CharacterComponent;
 
@@ -17,11 +16,10 @@ public class WorldContactListener implements ContactListener {
 		int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 		switch (cDef) {
 			case PLAYER_BIT | GROUND_BIT:
-				if (fixA.getFilterData().categoryBits == PLAYER_BIT) {
-					((Entity) fixA.getUserData()).getComponent(CharacterComponent.class).reset();
-				} else {
-					((Entity) fixB.getUserData()).getComponent(CharacterComponent.class).reset();
-				}
+				Entity playerEntity = fixA.getFilterData().categoryBits == PLAYER_BIT ?
+						(Entity) fixA.getUserData():
+						(Entity) fixB.getUserData();
+				playerEntity.getComponent(CharacterComponent.class).reset();
 				break;
 		}
 	}

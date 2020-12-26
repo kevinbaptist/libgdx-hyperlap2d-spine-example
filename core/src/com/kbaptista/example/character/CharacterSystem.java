@@ -1,6 +1,9 @@
 package com.kbaptista.example.character;
 
-import com.badlogic.ashley.core.*;
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -10,7 +13,7 @@ import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
 import static com.kbaptista.example.config.Config.PLAYER_BIT;
 
-public class CharacterSystem extends IteratingSystem implements EntityListener  {
+public class CharacterSystem extends IteratingSystem implements EntityListener {
 	private final Vector2 RIGHT_MOVEMENT;
 	private final Vector2 LEFT_MOVEMENT;
 	private final World world;
@@ -38,14 +41,12 @@ public class CharacterSystem extends IteratingSystem implements EntityListener  
 	private void handleKeyboardInput(Body body) {
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && body.getLinearVelocity().x <= 4) {
 			body.applyLinearImpulse(RIGHT_MOVEMENT, body.getWorldCenter(), true);
-		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) &&  body.getLinearVelocity().x >= -4) {
+		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && body.getLinearVelocity().x >= -4) {
 			body.applyLinearImpulse(LEFT_MOVEMENT, body.getWorldCenter(), true);
 		} else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && characterComponent.jumps > 0) {
 			characterComponent.jumps--;
 			body.applyLinearImpulse(new Vector2(0, 6f), body.getWorldCenter(), true);
 		}
-//		if (!body.getLinearVelocity().isZero())
-//			Gdx.app.log("Linear velocity", body.getLinearVelocity().x + ", " + body.getLinearVelocity().y);
 	}
 
 	@Override
