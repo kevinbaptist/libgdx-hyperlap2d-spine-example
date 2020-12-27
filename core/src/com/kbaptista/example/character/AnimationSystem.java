@@ -17,7 +17,6 @@ import static com.kbaptista.example.utils.Mappers.*;
 public class AnimationSystem extends IteratingSystem implements EntityListener {
 	private AnimationState currentAnimation;
 
-
 	public final static int LOOKING_LEFT = -1;
 	public final static int LOOKING_RIGHT = 1;
 
@@ -46,12 +45,13 @@ public class AnimationSystem extends IteratingSystem implements EntityListener {
 
 	private AnimationState getNextAnimationState(Entity entity, SpineObjectComponent spineObjectComponent) {
 		AnimationState animationState;
-		if (isPlayerLocked(entity)) {
+		CharacterComponent characterComponent = characterComponentMapper.get(entity);
+		if (characterComponent.isLocked) {
 			animationState = AnimationState.PORTAL;
 		} else if (isInAir(entity)) {
 			animationState = AnimationState.JUMP;
 		} else if (isAnyMovingKeyPressed()) {
-			spineObjectComponent.skeleton.setScaleX(getLookingDirection()); // change direction
+			spineObjectComponent.skeleton.setScaleX(getLookingDirection(characterComponent)); // change direction
 			animationState = AnimationState.RUN;
 		} else {
 			Vector2 velocity = physicsBodyComponentMapper.get(entity).body.getLinearVelocity();
@@ -64,19 +64,15 @@ public class AnimationSystem extends IteratingSystem implements EntityListener {
 		return animationState;
 	}
 
-	private boolean isPlayerLocked(Entity entity) {
-		return characterComponentMapper.get(entity).isLocked;
-	}
-
 	private boolean isInAir(Entity entity) {
-		return Gdx.input.isKeyPressed(Input.Keys.UP) || isJumping(entity);
+		return isJumping(entity);
 	}
 
-	private float getLookingDirection() {
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			return LOOKING_LEFT;
-		} else {
+	private float getLookingDirection(CharacterComponent characterComponent) {
+		if (characterComponent.isMovingRight) {
 			return LOOKING_RIGHT;
+		} else {
+			return LOOKING_LEFT;
 		}
 	}
 

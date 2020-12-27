@@ -6,25 +6,30 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.kbaptista.example.listener.PlayerInputHandler;
+import com.kbaptista.example.utils.Mappers;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 
 import static com.kbaptista.example.config.Config.PLAYER_BIT;
 
 public class CharacterSystem extends IteratingSystem implements EntityListener {
-	private final Vector2 RIGHT_MOVEMENT;
-	private final Vector2 LEFT_MOVEMENT;
-	private final World world;
 
-	CharacterComponent characterComponent;
+	private final int MAX_VELOCITY = 4;
+	private final Vector2 RIGHT_MOVEMENT = new Vector2(2, 0);
+	private final Vector2 LEFT_MOVEMENT = new Vector2(-2, 0);
+	private final Vector2 UP_MOVEMENT = new Vector2(0, 6);
+
+	private final World world;
+	private CharacterComponent characterComponent;
+	private final PlayerInputHandler inputProcessor;
 
 	public CharacterSystem(World world) {
 		super(Family.all(CharacterComponent.class, PhysicsBodyComponent.class).get());
 		this.world = world;
-		RIGHT_MOVEMENT = new Vector2(2, 0);
-		LEFT_MOVEMENT = new Vector2(-2, 0);
+		inputProcessor = new PlayerInputHandler();
+		Gdx.input.setInputProcessor(inputProcessor);
 	}
 
 	@Override
@@ -35,26 +40,43 @@ public class CharacterSystem extends IteratingSystem implements EntityListener {
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		handleKeyboardInput(entity.getComponent(PhysicsBodyComponent.class).body);
+		Body playerBody = Mappers.physicsBodyComponentMapper.get(entity).body;
+		if (characterComponent.isMovingRight) {
+			moveRightIfPossible(playerBody);
+		} else if (characterComponent.isMovingLeft) {
+			moveLeftIfPossible(playerBody);
+		}
+		if (characterComponent.isMovingUp) {
+			moveUpIfPossible(playerBody);
+		}
 	}
 
-	private void handleKeyboardInput(Body body) {
-		if (characterComponent.isLocked) {
-			return;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && body.getLinearVelocity().x <= 4) {
-			body.applyLinearImpulse(RIGHT_MOVEMENT, body.getWorldCenter(), true);
-		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && body.getLinearVelocity().x >= -4) {
-			body.applyLinearImpulse(LEFT_MOVEMENT, body.getWorldCenter(), true);
-		} else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && characterComponent.jumps > 0) {
+	private void moveUpIfPossible(Body playerBody) {
+		if (characterComponent.canJump()) {
 			characterComponent.jump();
-			body.applyLinearImpulse(new Vector2(0, 6f), body.getWorldCenter(), true);
+			applyMovement(UP_MOVEMENT, playerBody);
 		}
 	}
+
+	private void moveRightIfPossible(Body playerBody) {
+		if (playerBody.getLinearVelocity().x <= MAX_VELOCITY)
+			applyMovement(RIGHT_MOVEMENT, playerBody);
+	}
+
+	private void moveLeftIfPossible(Body playerBody) {
+		if (playerBody.getLinearVelocity().x >= -MAX_VELOCITY)
+			applyMovement(LEFT_MOVEMENT, playerBody);
+	}
+
+	private void applyMovement(Vector2 direction, Body playerBody) {
+		playerBody.applyLinearImpulse(direction, playerBody.getWorldCenter(), true);
+	}
+
 
 	@Override
 	public void entityAdded(Entity entity) {
-		characterComponent = entity.getComponent(CharacterComponent.class);
+		characterComponent = Mappers.characterComponentMapper.get(entity);
+		inputProcessor.setCharacterComponent(characterComponent);
 		//TODO: Give more meaning to those numbers
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.position.set(5, 5);
@@ -71,7 +93,6 @@ public class CharacterSystem extends IteratingSystem implements EntityListener {
 				.createFixture(fixtureDef)
 				.setUserData(entity);
 		entity.getComponent(PhysicsBodyComponent.class).body.createFixture(defineHead(fixtureDef));
-
 	}
 
 	private FixtureDef defineHead(FixtureDef fixtureDef) {
