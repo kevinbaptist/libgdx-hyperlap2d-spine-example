@@ -1,6 +1,8 @@
 package com.kbaptista.example.character;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
@@ -12,15 +14,15 @@ import games.rednblack.h2d.extention.spine.SpineObjectComponent;
 import static com.kbaptista.example.character.CharacterComponent.MAX_JUMPS;
 import static com.kbaptista.example.utils.Mappers.*;
 
-public class AnimationSystem extends IteratingSystem {
+public class AnimationSystem extends IteratingSystem implements EntityListener {
 	private AnimationState currentAnimation;
+
 
 	public final static int LOOKING_LEFT = -1;
 	public final static int LOOKING_RIGHT = 1;
 
 	public AnimationSystem() {
 		super(Family.all(CharacterComponent.class, SpineObjectComponent.class, PhysicsBodyComponent.class).get());
-		currentAnimation = AnimationState.RUN;
 	}
 
 
@@ -36,22 +38,24 @@ public class AnimationSystem extends IteratingSystem {
 
 	}
 
-	private AnimationState getNextAnimationState(Entity entity, SpineObjectComponent spineObjectComponent) {
+	@Override
+	public void addedToEngine(Engine engine) {
+		super.addedToEngine(engine);
+		engine.addEntityListener(Family.all(CharacterComponent.class, SpineObjectComponent.class, PhysicsBodyComponent.class).get(), this);
+	}
 
+	private AnimationState getNextAnimationState(Entity entity, SpineObjectComponent spineObjectComponent) {
 		AnimationState animationState;
-		if (Gdx.input.isKeyPressed(Input.Keys.UP) || isJumping(entity)) {
+		if (isPlayerLocked(entity)) {
+			animationState = AnimationState.PORTAL;
+		} else if (isInAir(entity)) {
 			animationState = AnimationState.JUMP;
 		} else if (isAnyMovingKeyPressed()) {
-			if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-				spineObjectComponent.skeleton.setScaleX(-1);
-			} else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-				spineObjectComponent.skeleton.setScaleX(1);
-			}
+			spineObjectComponent.skeleton.setScaleX(getLookingDirection()); // change direction
 			animationState = AnimationState.RUN;
 		} else {
 			Vector2 velocity = physicsBodyComponentMapper.get(entity).body.getLinearVelocity();
-			Gdx.app.log("ANimation", physicsBodyComponentMapper.get(entity).body.getMass() + "");
-			if (velocity.x * velocity.x > 1) {
+			if (velocity.x * velocity.x > 2) {
 				animationState = AnimationState.RUN_TO_IDLE;
 			} else {
 				animationState = AnimationState.IDLE;
@@ -60,11 +64,43 @@ public class AnimationSystem extends IteratingSystem {
 		return animationState;
 	}
 
+	private boolean isPlayerLocked(Entity entity) {
+		return characterComponentMapper.get(entity).isLocked;
+	}
+
+	private boolean isInAir(Entity entity) {
+		return Gdx.input.isKeyPressed(Input.Keys.UP) || isJumping(entity);
+	}
+
+	private float getLookingDirection() {
+		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+			return LOOKING_LEFT;
+		} else {
+			return LOOKING_RIGHT;
+		}
+	}
+
 	private boolean isJumping(Entity entity) {
 		return characterComponentMapper.get(entity).jumps != MAX_JUMPS;
 	}
 
 	private boolean isAnyMovingKeyPressed() {
 		return Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.LEFT);
+	}
+
+	@Override
+	public void entityAdded(final Entity entity) {
+		SpineObjectComponent spineObjectComponent = spineObjectComponentMapper.get(entity);
+		spineObjectComponent.getState().setAnimation(0, AnimationState.PORTAL.getAction(), false);
+		spineObjectComponent.getState().addListener(new com.esotericsoftware.spine.AnimationState.AnimationStateAdapter() {
+			public void complete(com.esotericsoftware.spine.AnimationState.TrackEntry entry) {
+				characterComponentMapper.get(entity).isLocked = false;
+			}
+		});
+	}
+
+	@Override
+	public void entityRemoved(Entity entity) {
+
 	}
 }

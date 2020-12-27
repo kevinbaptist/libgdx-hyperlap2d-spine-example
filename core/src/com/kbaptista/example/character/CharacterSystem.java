@@ -39,12 +39,15 @@ public class CharacterSystem extends IteratingSystem implements EntityListener {
 	}
 
 	private void handleKeyboardInput(Body body) {
+		if (characterComponent.isLocked) {
+			return;
+		}
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && body.getLinearVelocity().x <= 4) {
 			body.applyLinearImpulse(RIGHT_MOVEMENT, body.getWorldCenter(), true);
 		} else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && body.getLinearVelocity().x >= -4) {
 			body.applyLinearImpulse(LEFT_MOVEMENT, body.getWorldCenter(), true);
 		} else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && characterComponent.jumps > 0) {
-			characterComponent.jumps--;
+			characterComponent.jump();
 			body.applyLinearImpulse(new Vector2(0, 6f), body.getWorldCenter(), true);
 		}
 	}

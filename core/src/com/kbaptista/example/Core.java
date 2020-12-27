@@ -1,6 +1,5 @@
 package com.kbaptista.example;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -17,6 +16,8 @@ import games.rednblack.editor.renderer.SceneLoader;
 import games.rednblack.editor.renderer.components.physics.PhysicsBodyComponent;
 import games.rednblack.editor.renderer.utils.ItemWrapper;
 import games.rednblack.h2d.extention.spine.SpineItemType;
+
+import static com.kbaptista.example.utils.Mappers.physicsBodyComponentMapper;
 
 public class Core extends ApplicationAdapter {
 	private SceneLoader sceneLoader;
@@ -53,7 +54,7 @@ public class Core extends ApplicationAdapter {
 	private void loadCharacter(String identifier) {
 		ItemWrapper root = new ItemWrapper(sceneLoader.getRoot());
 		Entity character = root.getChild(identifier).getEntity();
-		player = ComponentMapper.getFor(PhysicsBodyComponent.class).get(character);
+		player = physicsBodyComponentMapper.get(character);
 		character.add(new CharacterComponent());
 	}
 
