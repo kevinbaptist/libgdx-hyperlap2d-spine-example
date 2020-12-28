@@ -7,7 +7,10 @@ are on folder assets in Android Module.
 
 The Character can be moved with left, right, up arrow and space for skate boarding.
 
-
+Scene Original size:
+* **Width:** 1920px
+* **Height:** 1200px
+* **World Unit:** 64px
 
 ## License
 
