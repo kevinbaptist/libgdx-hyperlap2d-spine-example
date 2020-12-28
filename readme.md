@@ -5,7 +5,7 @@ Very basic example of using LibGDX with HyperLap2D and Spine.
 Project Scene created with HyperLap2D is under folder /scene/Example1Scene. The exportable files used in project
 are on folder assets in Android Module.
 
-
+The Character can be moved with left, right, up arrow and space for skate boarding.
 
 
 
