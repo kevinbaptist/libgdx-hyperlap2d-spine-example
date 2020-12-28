@@ -23,6 +23,9 @@ public class PlayerInputHandler extends InputAdapter {
 			case Input.Keys.UP:
 				characterComponent.isMovingUp = true;
 				break;
+			case Input.Keys.SPACE:
+				characterComponent.isHoverboard = true;
+				break;
 		}
 		return true;
 	}
@@ -41,6 +44,9 @@ public class PlayerInputHandler extends InputAdapter {
 				break;
 			case Input.Keys.UP:
 				characterComponent.isMovingUp = false;
+				break;
+			case Input.Keys.SPACE:
+				characterComponent.isHoverboard = false;
 				break;
 		}
 		return true;

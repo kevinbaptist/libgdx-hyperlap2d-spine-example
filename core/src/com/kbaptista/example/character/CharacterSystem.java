@@ -49,6 +49,9 @@ public class CharacterSystem extends IteratingSystem implements EntityListener {
 		if (characterComponent.isMovingUp) {
 			moveUpIfPossible(playerBody);
 		}
+		if (characterComponent.isHoverboard) {
+			playerBody.applyForce(new Vector2(0, 10), playerBody.getWorldCenter(), true);
+		}
 	}
 
 	private void moveUpIfPossible(Body playerBody) {

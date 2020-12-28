@@ -61,6 +61,11 @@ public class AnimationSystem extends IteratingSystem implements EntityListener {
 				animationState = AnimationState.IDLE;
 			}
 		}
+		if (characterComponent.isHoverboard) {
+			spineObjectComponent.skeleton.setScaleX(getLookingDirection(characterComponent)); // change direction
+
+			animationState = AnimationState.HOVERBOARD;
+		}
 		return animationState;
 	}
 

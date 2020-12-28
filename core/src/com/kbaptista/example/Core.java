@@ -77,6 +77,7 @@ public class Core extends ApplicationAdapter {
 
 	private void centerCamera() {
 		camera.position.x = player.body.getPosition().x;
+		camera.position.y = Math.max(player.body.getPosition().y, 5.7f);
 	}
 
 	@Override

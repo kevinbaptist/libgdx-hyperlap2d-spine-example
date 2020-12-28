@@ -5,7 +5,8 @@ public enum AnimationState {
 	RUN_TO_IDLE("run-to-idle"),
 	IDLE("idle"),
 	JUMP("jump"),
-	PORTAL("portal");
+	PORTAL("portal"),
+	HOVERBOARD("hoverboard");
 
 	private final String action;
 
